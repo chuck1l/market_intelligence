@@ -88,7 +88,11 @@ y_hat_high (or low) = the predicted value from the model
 true_high (or low) = the actual price of that day
 
 <p align="center">
-<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="400" width=45% /><img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="400" width=45% />
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="400" width=80% />
+</p>
+
+<p align="center">
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="400" width=80% />
 </p>
 
   
