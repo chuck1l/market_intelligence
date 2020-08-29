@@ -84,15 +84,15 @@ I have already been developing some test modeling on SPY for the regressors only
 
 ### _**Important Notes**_
 
-y_hat_high (or low) = the predicted value from the model
+y_hat_high (or low) = the predicted value from the model <br/>
 true_high (or low) = the actual price of that day
 
 <p align="center">
-<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="400" width=80% />
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="600" width=80% />
 </p>
 
 <p align="center">
-<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="400" width=80% />
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="600" width=80% />
 </p>
 
   
