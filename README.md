@@ -30,7 +30,8 @@ Before we submerge ourselves in the complexity that is the world of highly techn
   * Article cleaning - remove punctuation and words that provide no value, lemmatize and vectorize content
   * Topic modeling and text analysis - Latent Dirichlet Allocation (LDA) and/or Non-Negative Matrix Factorization (NMF)
   * Sentiment analysis on the topics and text
-  * Perform VADER sentiment analysis to forecast directional movement out of the gate (opening bell)
+  * Perform sentiment analysis to forecast directional movement out of the gate (opening bell)
+      * RoBERTa: a BERT based sentiment analysis on key entity detection approach for online financial texts
       * VADER (Valence Aware Dictionary and sEntiment Reasoner): a lexicon and rule-based analysis tool specifically attuned to sentiments expressed
       
 3. Import historical data over a timeframe that provides the most effective forecasting for today's action
