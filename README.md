@@ -84,8 +84,8 @@ I have already been developing some test modeling on SPY for the regressors only
 
 ### _**Important Notes**_
 
-y_hat_high (or low) = the predicted value from the model <br/>
-true_high (or low) = the actual price of that day
+y_hat_high (or low) = the predicted value from the model (red line in the background) <br/>
+true_high (or low) = the actual price of that day (blue line in the foreground)
 
 <p align="center">
 <img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="600" width=80% />
