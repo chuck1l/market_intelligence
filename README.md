@@ -24,6 +24,7 @@ Before we submerge ourselves in the complexity that is the world of highly techn
 1. Selecting the security from over-night action (Gaps)
   * Looking for securities that have gained attention from other traders/algorithms with acceptable ~3% (+ or -) gap
   * Preferred market float and relative volume to ensure volatility and liquidity 
+  
 2. Perform web scraping on the news associated with the selected financial instrument
   * "news" source: recent blogs, chats, social media, surveys, articles, and documents
   * Article cleaning - remove punctuation and words that provide no value, lemmatize and vectorize content
@@ -31,17 +32,20 @@ Before we submerge ourselves in the complexity that is the world of highly techn
   * Sentiment analysis on the topics and text
   * Perform VADER sentiment analysis to forecast directional movement out of the gate (opening bell)
       * VADER (Valence Aware Dictionary and sEntiment Reasoner): a lexicon and rule-based analysis tool specifically attuned to sentiments expressed
+      
 3. Import historical data over a timeframe that provides the most effective forecasting for today's action
   * Price information and technical indicators
   * Perform Exploratory Data Analysis (EDA)
   * Normalization of data (scale all variables to have a values between 0 and 1)
   * Dimensionality Reduction to remove all features that produce multicollinearity or provide no value in the modeling
       * Principal component analysis (PCA)
+      
 4. Classification modeling for multiple purposes
   * Binary Classification utilized to predict directional movement (up or down) out of the gate (opening bell)
       * Random Forests Classifier, Recurrent Neural Networks Classifier, and/or Support Vector Machines (SVMs)
   * Multi-Class Classification utilized to predict zones (time of day) for expected "high of day" and "low of day"
       * Random Forests Classifier, Recurrent Neural Networks Classifier, and/or Support Vector Machines (SVMs)
+      
 5. Time Series Analysis, Forecasting the price zones for the upcoming day's "high of day" and "low of day" marks
   * Keras and TensorFlow
       * Long Short-Term Memory (LSTM)
@@ -52,8 +56,34 @@ Before we submerge ourselves in the complexity that is the world of highly techn
       * Randomized Search CV for best parameters
       * Grid Search CV for further improved parameters  
 
+## _**High-Level Explanation:**_
+
+1. Select the instrument deemed worthy of attention.
+
+2. Look over the internet for recent news in regards to the instrument, search for sentiment.
+
+3. Import the data to analyze and predict on. Clean it, prepare it and remove the data the doesn't impact our signal.
+
+4. Predict if the price movement will be up or down at the bell, and at which times to expect our entries and final exits.
+
+5. Forecast the expected price marks (zones) for said entry and final exit, and highest probability profit points within.
+
+6. Display the forecasted values on our website for members only to see, and chat with them during the trading day.
+
+7. Update the results in real-time (delays for computation) as the day proceeds.
   
-  
+## _**Conclusion:**_ 
+
+This is my current plan of action, most of the meat within is subject to change as I move forward in the analysis. Realizing the best or better methods, and reducing the complexity of the algorithm. As you noticed there are multiple methods within each step of the various accomplishments. They can be minimized or reduced to single models as we visualize error comparisons that lead to the most accurate method(s). If consistently better in predictions. Otherwise, they can all stay and the most effective model will be selected in real-time based on which provides the most accurate results on any given instrument. Adding computational expense and time which might hinder the results during the intraday projections.
+
+The data is always split into "Training Data" to train the model, "Testing Data" to test the model, and "Holdout Data" to further test on data that has not been seen in anyway by the selected model. This is important to prevent data leakage that might mislead us in the final result.
+
+## _**Results From My Initial :**_ 
+
+
+
+
+
   
   
   
