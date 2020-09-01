@@ -30,7 +30,8 @@ Before we submerge ourselves in the complexity that is the world of highly techn
   * Article cleaning - remove punctuation and words that provide no value, lemmatize and vectorize content
   * Topic modeling and text analysis - Latent Dirichlet Allocation (LDA) and/or Non-Negative Matrix Factorization (NMF)
   * Sentiment analysis on the topics and text
-  * Perform VADER sentiment analysis to forecast directional movement out of the gate (opening bell)
+  * Perform sentiment analysis to forecast directional movement out of the gate (opening bell)
+      * RoBERTa: a BERT based sentiment analysis on key entity detection approach for online financial texts
       * VADER (Valence Aware Dictionary and sEntiment Reasoner): a lexicon and rule-based analysis tool specifically attuned to sentiments expressed
       
 3. Import historical data over a timeframe that provides the most effective forecasting for today's action
@@ -74,7 +75,7 @@ Before we submerge ourselves in the complexity that is the world of highly techn
   
 ## _**Conclusion:**_ 
 
-This is my current plan of action, most of the substance is subject to change as I move forward in the analysis. Realizing the best or better methods, and reducing the complexity of the algorithm. As you noticed there are multiple methods within each step of the various accomplishments. They can be minimized or reduced to single models as we visualize error measurement comparisons that lead to the most accurate method(s). If consistently better in predictions. Otherwise, they can all stay and the most effective model will be selected in real-time based on which provides the most accurate results on any given instrument. Adding computational expense and time which might hinder the speed of results during the intraday projections.
+This is my current plan of action, most of the substance is subject to change as I move forward in the analysis. Realizing the best or better methods, and reducing the complexity of the algorithm. As you likely noticed there are multiple methods within each step of the various accomplishments. They can be minimized or reduced to single models as we visualize error measurement comparisons that lead to the most accurate method(s). If consistently better in predictions. Otherwise, they can all stay and the most effective model will be selected in real-time based on which provides the most accurate results on any given instrument. Adding computational expense and time which might hinder the speed of results during the intraday projections.
 
 The data is always split into "Training Data" to train the model, "Testing Data" to test the model, and "Holdout Data" to further test on data that has not been seen in any way by the selected model. This is important to prevent data leakage that might mislead us in the final result.
 
@@ -84,11 +85,15 @@ I have already been developing some test modeling on SPY for the regressors only
 
 ### _**Important Notes**_
 
-y_hat_high (or low) = the predicted value from the model
-true_high (or low) = the actual price of that day
+y_hat_high (or low) = the predicted value from the model (red line in the background) <br/>
+true_high (or low) = the actual price of that day (blue line in the foreground)
 
 <p align="center">
-<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="70" width=45% /><img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="70" width=45% />
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/high_of_day.png" height="600" width=80% />
+</p>
+
+<p align="center">
+<img src="https://github.com/chuck1l/market_intelligence/blob/master/imgs/low_of_day.png" height="600" width=80% />
 </p>
 
   
