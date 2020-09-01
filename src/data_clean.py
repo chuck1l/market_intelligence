@@ -65,9 +65,6 @@ class DataClean(object):
         # self.drop_any_nan_rows()
         print(self.data.tail(40))
         
-      
-
-
 if __name__ == '__main__':
     location = '../data/spy_1h_ext_hours.csv'
     spy = DataClean('../data/spy_1h_ext_hours.csv')
