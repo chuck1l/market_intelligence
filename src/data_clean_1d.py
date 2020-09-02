@@ -14,6 +14,7 @@ class DataCleanOneDay(object):
     def date_time(self):
         self.data['index'] = pd.to_datetime(self.data['time'], unit='s') #- pd.Timedelta(hours=7)
         self.data['date'] = self.data['index'].dt.date
+        self.data['year'] = self.data['index'].dt.year
         self.data['day_of_week'] = self.data['index'].dt.dayofweek
         self.data['day_of_year'] = self.data['index'].dt.dayofyear
         self.data['month'] = self.data['index'].dt.month
@@ -39,6 +40,9 @@ class DataCleanOneDay(object):
         self.create_tomorrow_cols()
         self.drop_all_nan_cols()
         self.drop_any_nan_rows()
+        mask = self.data['year'] >= 2000
+        self.data = self.data[mask] 
+        self.data['ticks'] = range(0, len(self.data.index.values))
         return self.data
         
 if __name__ == '__main__':

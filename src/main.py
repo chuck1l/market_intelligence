@@ -10,6 +10,9 @@ if __name__ == '__main__':
 
     spy_1d = DataCleanOneDay(location_1d)
     spy_1d_clean = spy_1d.data_prepared()
+    print(spy_1d_clean.head())
+
+
 
 
     

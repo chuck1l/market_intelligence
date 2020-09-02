@@ -62,7 +62,6 @@ class DataCleanOneHour(object):
         self.create_tomorrow_cols()
         self.drop_all_nan_cols()
         self.drop_any_nan_rows()
-        print(self.data.head())
         return self.data
         
 if __name__ == '__main__':
