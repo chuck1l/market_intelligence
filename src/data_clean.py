@@ -26,6 +26,7 @@ class DataClean(object):
         self.data['high_of_day'] = self.data.groupby(['date'])['high_of_day'].transform(max)
         self.data['low_of_day'] = self.data.groupby(['date'])['low_of_day'].transform(min)
         self.data['hi_lo_delta'] = round((self.data['high_of_day'] - self.data['low_of_day']) / self.data['low_of_day'] * 100, 2)
+        self.data['average_price'] = round((self.data['high_of_day'] + self.data['low_of_day'])/2, 2)
     def time_at_high(self):
         # Again, still only interested in regular market hours
         mask = (self.data['time_of_day'] >= 7) & (self.data['time_of_day'] <= 14)
@@ -62,12 +63,9 @@ class DataClean(object):
         self.time_at_low()
         self.create_tomorrow_cols()
         self.drop_all_nan_cols()
-        # self.drop_any_nan_rows()
-        print(self.data.tail(40))
+        self.drop_any_nan_rows()
+        return self.data
         
-      
-
-
 if __name__ == '__main__':
     location = '../data/spy_1h_ext_hours.csv'
     spy = DataClean('../data/spy_1h_ext_hours.csv')
