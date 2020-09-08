@@ -1,6 +1,7 @@
 from data_clean_1h import DataCleanOneHour
 from data_clean_1d import DataCleanOneDay
 from eda import StockEda
+from price_predict import PredictPrice
 
 if __name__ == '__main__':
     location_1h = '../data/spy_1h_ext_hours.csv'
@@ -18,6 +19,16 @@ if __name__ == '__main__':
     # for tomorrow high analysis
     spy_high = StockEda(spy_1d_clean, 'tomorrow_high')
     high_features = spy_high.get_principal_comp()
+    # Add the target column back to the datasets
+    high_features.append('tomorrow_high')
+    low_features.append('tomorrow_low')
+    # Create the dataframe based on feature importance
+    high_stock = spy_1d_clean[high_features].copy()
+    low_stock = spy_1d_clean[low_features].copy()
+    
+    PredictPrice(high_stock, 'tomorrow_high').prediction()
+
+    
     
 
 

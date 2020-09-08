@@ -37,16 +37,18 @@ class StockEda(object):
         x = np.arange(features_df.shape[0]) # label locations
         width = 0.35 # setting the width of each bar for the labels
         # Plotting the Random Forest Model Feature importance
-        fig, ax = plt.subplots(figsize=(15, 15))
-        ax.bar(x, features_df['Feature Importance'], width, label=self.g_label)
-        ax.set_ylabel('Importance Score')
-        ax.set_title('Feature Importance As Per Random Forest')
-        ax.set_xticks(x)
-        ax.set_xticklabels(graph_labels, rotation='vertical')
-        ax.legend()
-        fig.tight_layout()
-        plt.savefig(save_location)
-        plt.show()
+        toggle = False
+        if toggle:
+            fig, ax = plt.subplots(figsize=(15, 15))
+            ax.bar(x, features_df['Feature Importance'], width, label=self.g_label)
+            ax.set_ylabel('Importance Score')
+            ax.set_title('Feature Importance As Per Random Forest')
+            ax.set_xticks(x)
+            ax.set_xticklabels(graph_labels, rotation='vertical')
+            ax.legend()
+            fig.tight_layout()
+            plt.savefig(save_location)
+            plt.show()
         self.result = list(features_df['features'][:16].values)
     def get_principal_comp(self):
         self.ensure_float()
@@ -56,7 +58,4 @@ class StockEda(object):
         return self.result
        
 if __name__ == '__main__':
-    data = pd.read_csv('../data/lstm_test.csv')
-    data.set_index('index', inplace=True)
-    spy = StockEda(data, 'tomorrow_low')
-    spy.get_principal_comp()
+    pass
