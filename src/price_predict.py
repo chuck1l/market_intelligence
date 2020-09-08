@@ -31,7 +31,7 @@ class PredictPrice(object):
         self.y_train, self.y_test, self.y_holdout = self.y[:tr_n], self.y[tr_n:-ho_n], self.y[-ho_n:]
         #return self.X_train, self.y_train, self.X_test, self.y_test, self.X_holdout, self.y_holdout
     def run_lstm(self):
-        
+        pass
     def prediction(self):
         self.ensure_float()
         self.normalize_features()

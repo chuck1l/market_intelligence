@@ -25,8 +25,10 @@ if __name__ == '__main__':
     # Create the dataframe based on feature importance
     high_stock = spy_1d_clean[high_features].copy()
     low_stock = spy_1d_clean[low_features].copy()
+
+    high_stock.to_csv('../data/lstm_testdata.csv')
     
-    PredictPrice(high_stock, 'tomorrow_high').prediction()
+    # PredictPrice(high_stock, 'tomorrow_high').prediction()
 
     
     
