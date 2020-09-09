@@ -7,12 +7,14 @@ from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint, T
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout
 from keras.optimizers import Adam
+from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt 
 plt.style.use('fivethirtyeight')
 
 df = pd.read_csv('../data/lstm_testdata.csv')
 df.set_index('index', inplace=True)
-col_name = 'tomorrow_high'
+df.drop('tomorrow_high', axis=1, inplace=True)
+col_name = 'high'
 first_col = df.pop(col_name)
 df.insert(0, col_name, first_col)
 training_set = df.values
@@ -46,9 +48,9 @@ model.add(LSTM(units=10, return_sequences=False))
 # Adding Dropout
 model.add(Dropout(0.25))
 # Output Layer
-model.add(Dense(units=1, activation='linear'))
+model.add(Dense(units=1, activation='relu'))
 # Compiling the Neural Network
-model.compile(optimizer = Adam(learning_rate=0.01), loss='mean_squared_error')
+model.compile(optimizer ='adam', loss='mean_squared_error')
 
 # START TRAINING
 es = EarlyStopping(monitor='val_loss', min_delta=1e-10, patience=10, verbose=1)

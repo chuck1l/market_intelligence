@@ -1,46 +1,84 @@
 import pandas as pd  
 import numpy as np
 import matplotlib.pyplot as plt 
-from sklearn.preprocessing import StandardScaler
+import math
+from keras.models import Sequential
+from keras.layers import LSTM, Dense, Dropout
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+
+def create_dataset(data, look_back):
+        dataX, datay = [], []
+        for i in range(len(data)-look_back-1):
+            a  = data[i:(i+look_back), 0]
+            dataX.append(a)
+            datay.append(data[i + look_back, 0])
+        return np.array(dataX), np.array(datay)
 
 class PredictPrice(object):
-    def __init__(self, data, predict_col, lookback=5):
-        self.df = data
-        self.lookback = lookback
-        self.predict_col = predict_col
-    def ensure_float(self):
-        cols = self.df.columns
-        self.df[cols] = self.df[cols].astype(float).round(2)
-    def normalize_features(self):
-        cols = self.df.columns
-        scaler = StandardScaler()
-        self.scaled = self.df.copy()
-        self.scaled[cols] = scaler.fit_transform(self.scaled[cols])
-    # Create X, y with sliding windows of lookback period as specified above
-    def X_y_windows(self):
-        self.y = self.scaled[self.predict_col]
-        self.X = self.scaled.drop(self.predict_col, axis=1)
-        cols = self.X.columns
-        for i in range(1, self.lookback + 1):
-            for col in cols:
-                self.X[col+'_'+str(i)] = self.X[col].shift(i)
-        self.X.fillna(0, axis=0, inplace=True)
-        ho_n = int(self.X.shape[0] * .1)
-        tr_n = int(self.X.shape[0] * .8)
-        self.X_train, self.X_test, self.X_holdout = self.X[:tr_n], self.X[tr_n:-ho_n], self.X[-ho_n:]
-        self.y_train, self.y_test, self.y_holdout = self.y[:tr_n], self.y[tr_n:-ho_n], self.y[-ho_n:]
-        #return self.X_train, self.y_train, self.X_test, self.y_test, self.X_holdout, self.y_holdout
-    def run_lstm(self):
-        pass
-    def prediction(self):
-        self.ensure_float()
-        self.normalize_features()
-        self.X_y_windows()
+    def __init__(self, dataset):
+        self.look_back = len(dataset.columns)
+        self.dataset = dataset.values
+        self.dataset = self.dataset.astype('float32')
+    def normalize_data(self):
+        self.scaler = MinMaxScaler(feature_range=(0, 1))
+        self.dataset = self.scaler.fit_transform(self.dataset)
+    def train_test_split(self):
+        train_size = int(len(self.dataset) * .67)
+        #test_size = len(self.dataset) - train_size
+        self.train = self.dataset[0:train_size, :]
+        self.test = self.dataset[train_size:len(self.dataset), :]
+    def reshape_tr_test(self):
+        X_train, self.y_train = create_dataset(self.train, self.look_back)
+        X_test, self.y_test = create_dataset(self.test, self.look_back)
+        self.X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
+        self.X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+    def make_predictions(self):
+        # Initializing the Neural Network Based On LSTM
+        model = Sequential()
+        # Adding 1st LSTM Layer
+        model.add(LSTM(units=64, return_sequences=True, input_shape=(1, self.look_back)))
+        # Adding 2nd LSTM Layer
+        model.add(LSTM(units=10))
+        # Adding Dropout
+        model.add(Dropout(0.25))
+        # Output Layer
+        model.add(Dense(units=1, activation='relu'))
+        # Compiling the Neural Network
+        model.compile(loss='mean_squared_error', optimizer ='adam')
+        # Fit on training data
+        model.fit(self.X_train, self.y_train, epochs=100, batch_size=256, verbose=2)
+        # make predictions
+        trainPredict = model.predict(self.X_train)
+        testPredict = model.predict(self.X_test)
+        # Invert predictions
+        trainPredict = self.scaler.inverse_transform(trainPredict)
+        print(trainPredict)
+        self.y_train = self.scaler.inverse_transform(self.y_train)
+        testPredict = self.scaler.inverse_transform(testPredict)
+        self.y_test = self.scaler.inverse_transform(self.y_test)
+        # Calculate RMSE
+        trainScore = math.sqrt(mean_squared_error(self.y_train[0], trainPredict[:, 0]))
+        print('Train Score: %.2f RMSE' % (trainScore))
+        testScore = math.sqrt(mean_squared_error(self.y_test[0], testPredict[:, 0]))
+        print('Test Score: %.2f RMSE' % (testScore))
+
+    def get_predictions(self):
+        self.normalize_data()
+        self.train_test_split()
+        self.reshape_tr_test()
+        self.make_predictions()
+        
 
 if __name__ == '__main__':
-    pass
-    # data = pd.read_csv('../data/lstm_test.csv')
-    # data.set_index('index', inplace=True)
-    # spy = PredictPrice(data)
-    # spy.prediction()
+    np.random.seed(42)
+    df = pd.read_csv('../data/lstm_testdata.csv')
+    df.set_index('index', inplace=True)
+    df.drop('tomorrow_high', axis=1, inplace=True)
+    col_name = 'high'
+    first_col = df.pop(col_name)
+    df.insert(0, col_name, first_col)
+    # Testing prediction class
+    PredictPrice(df).get_predictions()
 
+    
