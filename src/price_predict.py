@@ -10,16 +10,16 @@ from sklearn.metrics import mean_squared_error
 def create_dataset(data, look_back):
         dataX, datay = [], []
         for i in range(len(data)-look_back-1):
-            a  = data[i:(i+look_back), 0]
+            a  = data[i:(i+look_back), 0:]
             dataX.append(a)
             datay.append(data[i + look_back, 0])
         return np.array(dataX), np.array(datay)
 
 class PredictPrice(object):
     def __init__(self, dataset):
-        self.look_back = len(dataset.columns)
+        self.look_back = 5
         self.dataset = dataset.values
-        self.dataset = self.dataset.astype('float32')
+        self.dataset = self.dataset.astype('float32').reshape(-1, 1)
     def normalize_data(self):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
         self.dataset = self.scaler.fit_transform(self.dataset)
@@ -37,9 +37,9 @@ class PredictPrice(object):
         # Initializing the Neural Network Based On LSTM
         model = Sequential()
         # Adding 1st LSTM Layer
-        model.add(LSTM(units=64, return_sequences=True, input_shape=(1, self.look_back)))
+        model.add(LSTM(units=640, return_sequences=True, input_shape=(1, self.look_back)))
         # Adding 2nd LSTM Layer
-        model.add(LSTM(units=10))
+        model.add(LSTM(units=64))
         # Adding Dropout
         model.add(Dropout(0.25))
         # Output Layer
@@ -47,16 +47,16 @@ class PredictPrice(object):
         # Compiling the Neural Network
         model.compile(loss='mean_squared_error', optimizer ='adam')
         # Fit on training data
-        model.fit(self.X_train, self.y_train, epochs=100, batch_size=256, verbose=2)
+        model.fit(self.X_train, self.y_train, epochs=300, batch_size=1024, verbose=2)
         # make predictions
         trainPredict = model.predict(self.X_train)
         testPredict = model.predict(self.X_test)
         # Invert predictions
+        #breakpoint()
         trainPredict = self.scaler.inverse_transform(trainPredict)
-        print(trainPredict)
-        self.y_train = self.scaler.inverse_transform(self.y_train)
+        self.y_train = self.scaler.inverse_transform([self.y_train])
         testPredict = self.scaler.inverse_transform(testPredict)
-        self.y_test = self.scaler.inverse_transform(self.y_test)
+        self.y_test = self.scaler.inverse_transform([self.y_test])
         # Calculate RMSE
         trainScore = math.sqrt(mean_squared_error(self.y_train[0], trainPredict[:, 0]))
         print('Train Score: %.2f RMSE' % (trainScore))
@@ -79,6 +79,6 @@ if __name__ == '__main__':
     first_col = df.pop(col_name)
     df.insert(0, col_name, first_col)
     # Testing prediction class
-    PredictPrice(df).get_predictions()
+    PredictPrice(df['high']).get_predictions()
 
     
