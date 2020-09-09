@@ -11,6 +11,7 @@ class DataCleanOneDay(object):
     '''
     def __init__(self, location):
         self.data = pd.read_csv(location)
+
     def date_time(self):
         self.data['index'] = pd.to_datetime(self.data['time'], unit='s') #- pd.Timedelta(hours=7)
         self.data['date'] = self.data['index'].dt.date
@@ -20,20 +21,25 @@ class DataCleanOneDay(object):
         self.data['month'] = self.data['index'].dt.month
         self.data.set_index(self.data['index'], inplace=True)
         self.data.drop(['time', 'index'], axis=1, inplace=True)
+
     def create_new_price_cols(self):
         self.data['hi_lo_delta'] = round((self.data['high'] - self.data['low']) / self.data['low'] * 100, 2)
         self.data['average_price'] = round((self.data['high'] + self.data['low'])/2, 2)
+
     def create_tomorrow_cols(self):
         # I need to predict tomorrow's values, so shifting them to the
         # today's information to prevent data leakage
         self.data['tomorrow_high'] = self.data['high'].shift(-1)
         self.data['tomorrow_low'] = self.data['low'].shift(-1)
+
     def drop_all_nan_cols(self):
         threshold = self.data.shape[0] - 500
         self.data.dropna(axis='columns', thresh=threshold, inplace=True)
+
     def drop_any_nan_rows(self):
         self.data.dropna(axis='rows', how='any', inplace=True)
-    # Run all function in this class together, sequential order   
+    # Run all function in this class together, sequential order 
+      
     def data_prepared(self):
         self.date_time()
         self.create_new_price_cols()

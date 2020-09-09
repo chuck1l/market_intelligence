@@ -20,19 +20,23 @@ class PredictPrice(object):
         self.look_back = 5
         self.dataset = dataset.values
         self.dataset = self.dataset.astype('float32').reshape(-1, 1)
+
     def normalize_data(self):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
         self.dataset = self.scaler.fit_transform(self.dataset)
+
     def train_test_split(self):
         train_size = int(len(self.dataset) * .67)
         #test_size = len(self.dataset) - train_size
         self.train = self.dataset[0:train_size, :]
         self.test = self.dataset[train_size:len(self.dataset), :]
+
     def reshape_tr_test(self):
         X_train, self.y_train = create_dataset(self.train, self.look_back)
         X_test, self.y_test = create_dataset(self.test, self.look_back)
         self.X_train = np.reshape(X_train, (X_train.shape[0], 1, X_train.shape[1]))
         self.X_test = np.reshape(X_test, (X_test.shape[0], 1, X_test.shape[1]))
+        
     def make_predictions(self):
         # Initializing the Neural Network Based On LSTM
         model = Sequential()
