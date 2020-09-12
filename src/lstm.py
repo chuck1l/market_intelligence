@@ -7,28 +7,24 @@ from keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 
-def create_windows(data, window, col):
+def create_windows(data, window):
+        cols = ['close', 'VWAP', 'high', 'average_price', 'low']
         for i in range(window+1):
-            data[col+'_'+str(i)] = data[col].shift(i, axis=0)
+            for col in cols:
+                data[col+'_'+str(i)] = data[col].shift(i, axis=0)
 
 class PredictPrice(object):
-    def __init__(self, dataset, pred_col, focus_col):
+    def __init__(self, dataset, pred_col):
         self.dataset = dataset
         self.pred_col = pred_col
-        self.focus_col = focus_col
         self.look_back = 5
         self.num_cols = len(self.dataset.columns) - 1
-        # Remove the column opposite of the column of interest (reduce dimensions)
-        if self.focus_col == 'high':
-            self.dataset.drop('low', axis=1, inplace=True)
-        elif self.focus_col == 'low':
-            self.dataset.drop('high', axis=1, inplace=True)
-
+        
     def train_test_split(self):
         self.y = self.dataset[self.pred_col]
         self.X = self.dataset.drop(columns=[self.pred_col], axis=1)
         # Create the look back window for the price associated with the target
-        create_windows(self.X, self.look_back, self.focus_col)
+        create_windows(self.X, self.look_back)
         self.X.dropna(axis='rows', how='any', inplace=True)
         # Make sure that y shape matches X shape after removing NaN's
         idx = self.X.index
@@ -103,6 +99,6 @@ if __name__ == '__main__':
     df = pd.read_csv('../data/lstm_testdata.csv')
     df.set_index('index', inplace=True)
     # Testing prediction class
-    PredictPrice(df, 'tomorrow_high', 'high').get_predictions()
+    PredictPrice(df, 'tomorrow_high').get_predictions()
 
 
