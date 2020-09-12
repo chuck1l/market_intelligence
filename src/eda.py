@@ -53,7 +53,11 @@ class StockEda(object):
             fig.tight_layout()
             plt.savefig(save_location)
             plt.show()
-        self.result = list(features_df['features'][:16].values)
+        self.result = list(features_df['features'][:5].values)
+        high_low_lst = ['high', 'low']
+        for item in high_low_lst:
+            if item not in self.result:
+                self.result.append(item)
         
     def get_principal_comp(self):
         self.ensure_float()

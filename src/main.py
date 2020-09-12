@@ -27,7 +27,7 @@ if __name__ == '__main__':
     low_stock = spy_1d_clean[low_features].copy()
 
     high_stock.to_csv('../data/lstm_testdata.csv')
-    
+    print(high_stock.head())
     # PredictPrice(high_stock, 'tomorrow_high').prediction()
 
     
