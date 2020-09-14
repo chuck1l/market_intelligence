@@ -6,6 +6,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+from keras.models import load_model
 
 def create_dataset(data, look_back):
         dataX, datay = [], []
@@ -15,14 +16,14 @@ def create_dataset(data, look_back):
             datay.append(data[i + look_back, 0])
         return np.array(dataX), np.array(datay)
 
-class PredictPrice(object):
+class PredictPriceHigh(object):
     def __init__(self, dataset):
         self.look_back = 5
         self.dataset = dataset.values
         self.dataset = self.dataset.astype('float32').reshape(-1, 1)
         self.train_size = int(len(self.dataset) * .67)
         self.train_x = dataset.index[0:self.train_size]
-        self.test_x = dataset.index[self.train_size:len(self.dataset)]
+        self.test_x = dataset.index[self.train_size:len(self.dataset)-self.look_back]
 
     def normalize_data(self):
         self.scaler = MinMaxScaler(feature_range=(0, 1))
@@ -30,7 +31,8 @@ class PredictPrice(object):
 
     def train_test_split(self):
         self.train = self.dataset[0:self.train_size, :]
-        self.test = self.dataset[self.train_size:len(self.dataset), :]
+        self.test = self.dataset[self.train_size:len(self.dataset)-self.look_back, :]
+        self.holdout = self.dataset[len(self.dataset)-self.look_back:, :]
 
     def reshape_tr_test(self):
         X_train, self.y_train = create_dataset(self.train, self.look_back)
@@ -52,14 +54,13 @@ class PredictPrice(object):
         # Compiling the Neural Network
         model.compile(loss='mean_squared_error', optimizer ='adam')
         # Fit on training data
-        model.fit(self.X_train, self.y_train, epochs=300, batch_size=1024, verbose=2)
+        model.fit(self.X_train, self.y_train, epochs=300, batch_size=1024, verbose=0)
         # Save Model 
-        model.save('../models/model.h5')
+        model.save('../models/high_model.h5')
         # make predictions
         trainPredict = model.predict(self.X_train)
         testPredict = model.predict(self.X_test)
         # Invert predictions
-        #breakpoint()
         self.trainPredict = self.scaler.inverse_transform(trainPredict)
         self.y_train = self.scaler.inverse_transform([self.y_train])
         self.testPredict = self.scaler.inverse_transform(testPredict)
@@ -81,7 +82,7 @@ class PredictPrice(object):
         plt.title('Train Data Predicted and True Tomorrow High Price', fontsize=19)
         plt.legend()
         plt.tight_layout
-        #plt.savefig('../imgs/train_lstm_tuned.png')
+        #plt.savefig('../imgs/high_train_lstm_tuned.png')
         plt.show();
 
         # Plot the results
@@ -94,26 +95,24 @@ class PredictPrice(object):
         plt.title('Test Data Predicted and True Tomorrow High Price', fontsize=19)
         plt.legend()
         plt.tight_layout
-        #plt.savefig('../imgs/test_lstm_tuned.png')
+        #plt.savefig('../imgs/high_test_lstm_tuned.png')
         plt.show();
-
+    
+    def return_todays_pred(self):
+        finalX = np.array([[self.holdout[0], self.holdout[1], self.holdout[2], self.holdout[3], self.holdout[4]]])
+        finalX = np.reshape(finalX, (finalX.shape[0], 1, finalX.shape[1]))
+        v = load_model('../models/high_model.h5')
+        finalPredict = v.predict(finalX)
+        finalPredict = self.scaler.inverse_transform(finalPredict)
+        print(f"I am tomorrow's high: {finalPredict[0][0]:.2f}")
+        
     def get_predictions(self):
         self.normalize_data()
         self.train_test_split()
         self.reshape_tr_test()
         self.make_predictions()
-        self.get_plots()
+        self.return_todays_pred()
         
 
 if __name__ == '__main__':
-    np.random.seed(42)
-    df = pd.read_csv('../data/lstm_testdata.csv')
-    df.set_index('index', inplace=True)
-    df.drop('tomorrow_high', axis=1, inplace=True)
-    col_name = 'high'
-    first_col = df.pop(col_name)
-    df.insert(0, col_name, first_col)
-    # Testing prediction class
-    PredictPrice(df['high']).get_predictions()
-
-    
+    pass
