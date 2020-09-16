@@ -18,7 +18,7 @@ def create_dataset(data, look_back):
 
 class PredictPriceLow(object):
     def __init__(self, dataset):
-        self.look_back = 5
+        self.look_back = 2
         self.dataset = dataset.values
         self.dataset = self.dataset.astype('float32').reshape(-1, 1)
         self.train_size = int(len(self.dataset) * .67)
@@ -44,7 +44,7 @@ class PredictPriceLow(object):
         # Initializing the Neural Network Based On LSTM
         model = Sequential()
         # Adding 1st LSTM Layer
-        model.add(LSTM(units=640, return_sequences=True, input_shape=(1, 5)))
+        model.add(LSTM(units=640, return_sequences=True, input_shape=(1, self.look_back)))
         # Adding 2nd LSTM Layer
         model.add(LSTM(units=64))
         # Adding Dropout
@@ -99,7 +99,8 @@ class PredictPriceLow(object):
         plt.show();
 
     def return_todays_pred(self):
-        finalX = np.array([[self.holdout[0], self.holdout[1], self.holdout[2], self.holdout[3], self.holdout[4]]])
+        #finalX = np.array([[self.holdout[0], self.holdout[1], self.holdout[2], self.holdout[3], self.holdout[4]]])
+        finalX = np.array([[self.holdout[0], self.holdout[1]]])
         finalX = np.reshape(finalX, (finalX.shape[0], 1, finalX.shape[1]))
         v = load_model('../models/high_model.h5')
         finalPredict = v.predict(finalX)
