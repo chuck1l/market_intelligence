@@ -17,38 +17,74 @@ from pandas_datareader import data as pdr
 import yfinance as yf
 yf.pdr_override()
 
+def high_rolling_mean_count(dte, days_back, df):
+    date_back_start = dte
+    date_back_end = dte - timedelta(days = days_back)
+    df_ss = df.loc[date_back_end:date_back_start]
+    rolling_mean = df_ss['high'].mean()
+    return rolling_mean
+
+def low_rolling_mean_count(dte, days_back, df):
+    date_back_start = dte
+    date_back_end = dte - timedelta(days = days_back)
+    df_ss = df.loc[date_back_end:date_back_start]
+    rolling_mean = df_ss['low'].mean()
+    return rolling_mean
+
+def set_index_to_datetime(df):
+    df.index = df['date']
+    return None
+
 class PredictPriceLow(object):
-    def __init__(self, dataset, window):
-        self.window = window
+    def __init__(self, dataset, days_back):
+        self.days_back = days_back
         self.df = dataset
         self.df = self.df.astype('float32')
 
     def column_manipulation(self):
+        self.df.reset_index(inplace=True)
         self.df.columns = self.df.columns.str.lower()
+        set_index_to_datetime(self.df)
+        adjust_close = self.df.pop('adj close')
+        self.df.drop(['volume'], axis=1, inplace=True)
+        self.df['avg_price'] = self.df.sum(axis=1)/self.df.shape[1]
+        self.df.drop(['open'], axis=1, inplace=True)
+        self.df['tmr_high'] = self.df['high'].shift(periods=-1)
         self.df['tmr_low'] = self.df['low'].shift(periods=-1)
+        self.df['tmr_high'].fillna(self.df['high'], inplace=True)
         self.df['tmr_low'].fillna(self.df['low'], inplace=True)
-
-    def create_windows(self):
-        # creating windows for the columns listed, window length parameter
-        cols = [col for col in self.df.columns if col != 'tmr_low']  
-        for i in range(self.window+1):
-            for col in cols:
-                self.df[col+'_back_'+str(i)] = self.df[col].shift(i, axis=0)
-        self.df = self.df.dropna(axis=0, how='any')
+        self.df['adjusted_close'] = adjust_close
+        # Create a rolling mean
+        self.df['high_mean'] = self.df.apply(lambda row: high_rolling_mean_count(
+                                                        row['date'],
+                                                        self.days_back,
+                                                        self.df), axis=1)
+        self.df['low_mean'] = self.df.apply(lambda row: low_rolling_mean_count(
+                                                        row['date'],
+                                                        self.days_back,
+                                                        self.df), axis=1)
+        self.df.drop('date', axis=1, inplace=True)
     
     def train_test_split(self):
         # Create the holdout sample for final prediction
-        self.df, self.holdout_raw = self.df.drop(self.df.tail(1).index), self.df.tail(1)
-        # Drop y from holdout
-        self.holdout_raw.drop('tmr_low', axis=1, inplace=True)
-        # Create the y set for Low of Day
+        self.df, self.holdout_raw = self.df.drop(self.df.tail(30).index), self.df.tail(30)
+        # Drop y from holdout and create holdout df for future plotting
+        ho_cols = ['high', 'low', 'tmr_high', 'tmr_low']
+        self.holdout_df = self.holdout_raw[ho_cols].copy()
+        self.holdout_df.rename(columns={'low': 'persis_low', 'high': 'persis_high'}, inplace=True)
+        # The true holdout dataframe is below
+        self.holdout_raw.drop(['tmr_high', 'tmr_low'], axis=1, inplace=True)
+        # Create the y set for high and low of day
         self.y = self.df['tmr_low']
-        # Drop the y values from the original dataframe
-        self.X = self.df.drop('tmr_low', axis=1).copy()
+        # Drop the y values from the dataframe
+        self.df.drop(['tmr_high', 'tmr_low'], axis=1, inplace=True)
+        # Train and Test Split for High and Low of day models
+        train_end = int(self.df.shape[0]*.70)
+        self.X_train_raw, self.X_test_raw = self.df.iloc[0:train_end, :].copy(), self.df.iloc[train_end:-1, :].copy()
+        self.y_train_raw, self.y_test_raw = self.y.iloc[0:train_end].copy(), self.y.iloc[train_end:-1].copy()
+
 
     def reshape_tr_test(self):
-        # Train and Test split for Low of Day models
-        self.X_train_raw, self.X_test_raw, self.y_train_raw, self.y_test_raw = train_test_split(self.X, self.y, test_size=0.3, shuffle=True, random_state=42)
         # Reshape the data for LSTM format
         self.X_train = np.expand_dims(self.X_train_raw.values[:, :], axis=2)
         self.X_test = np.expand_dims(self.X_test_raw.values[:, :], axis=2)
@@ -121,7 +157,6 @@ class PredictPriceLow(object):
         
     def get_predictions(self):
         self.column_manipulation()
-        self.create_windows()
         self.train_test_split()
         self.reshape_tr_test()
         self.make_predictions()
@@ -135,6 +170,6 @@ if __name__ == '__main__':
     # Ticker symbol to investigate
     ticker = 'SPY'
     # Pull data for both low and high of day
-    window = 2
+    days_back = 10
     data = pdr.get_data_yahoo(ticker, start=start_date, end=end_date)
-    PredictPriceLow(data, window).get_predictions()
+    PredictPriceLow(data, days_back).get_predictions()
